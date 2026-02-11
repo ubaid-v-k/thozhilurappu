@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import PostCard from "./PostCard";
+import { PostCard } from "./PostCard";
 import { Loader2 } from "lucide-react";
 import { usePosts } from "../../context/PostsContext";
 

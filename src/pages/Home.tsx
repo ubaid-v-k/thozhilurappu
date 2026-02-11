@@ -5,20 +5,32 @@ import { Button } from "../components/ui/Button";
 import { SlidersHorizontal } from "lucide-react";
 import JobFilters from "../components/feed/JobFilters";
 import { AnimatePresence, motion } from "framer-motion";
+import { SearchBar } from "../components/ui/SearchBar";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
     const [showMobileFilters, setShowMobileFilters] = useState(false);
+    const navigate = useNavigate();
 
     return (
-        <div className="relative max-w-[600px] mx-auto">
-            {/* Mobile Header */}
-            <div className="md:hidden sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-gray-100 p-4 flex justify-between items-center mb-4 -mx-4 px-4">
-                <div className="flex items-center gap-2">
+        <div className="relative max-w-[600px] mx-auto pb-20">
+            {/* Header & Search */}
+            <div className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 py-3 mb-4">
+                <div className="flex justify-between items-center mb-3 md:hidden">
                     <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-800">Thozhilurappu</h1>
+                    <Button variant="ghost" size="icon" onClick={() => setShowMobileFilters(true)} className="-mr-2">
+                        <SlidersHorizontal className="h-6 w-6 text-gray-600" />
+                    </Button>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setShowMobileFilters(true)}>
-                    <SlidersHorizontal className="h-5 w-5 text-gray-600" />
-                </Button>
+
+                <SearchBar
+                    placeholder="Search for jobs, services, or people..."
+                    showLocation={false}
+                    className="shadow-sm border-gray-200"
+                    onSearch={(query) => {
+                        navigate(`/jobs?search=${encodeURIComponent(query)}`);
+                    }}
+                />
             </div>
 
             {/* Mobile Filters Drawer */}

@@ -11,7 +11,17 @@ export interface User {
     verified?: boolean;
 }
 
-export type PostType = 'JOB' | 'SERVICE';
+export type PostType = 'JOB' | 'SERVICE' | 'NORMAL';
+
+export interface Group {
+    id: string;
+    name: string;
+    description: string;
+    image?: string;
+    banner?: string;
+    members: number; // For mock simplicity
+    joined?: boolean; // For current user context
+}
 
 export interface BasePost {
     id: number | string;
@@ -23,6 +33,7 @@ export interface BasePost {
     images?: string[]; // Array of image URLs
     type: PostType;
     user?: User; // Author
+    group?: Group; // Optional group link
 }
 
 export interface JobPost extends BasePost {
@@ -39,4 +50,9 @@ export interface ServicePost extends BasePost {
     availability?: string; // e.g. "Weekends"
 }
 
-export type Post = JobPost | ServicePost;
+export interface NormalPost extends BasePost {
+    type: 'NORMAL';
+    tags?: string[];
+}
+
+export type Post = JobPost | ServicePost | NormalPost;

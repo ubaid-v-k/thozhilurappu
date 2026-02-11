@@ -1,5 +1,63 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
-import type { JobPost, ServicePost, Post } from '../types';
+import type { JobPost, ServicePost, NormalPost, Post, PostType, Group } from '../types';
+
+const MOCK_GROUPS: Group[] = [
+    {
+        id: 'g1',
+        name: 'Kerala Plumbers Association',
+        description: 'A community for professional plumbers in Kerala to share work and tips.',
+        members: 1250,
+        image: 'https://images.unsplash.com/photo-1581578731117-104f2a417954?auto=format&fit=crop&w=200&q=80'
+    },
+    {
+        id: 'g2',
+        name: 'IT Jobs Chennai',
+        description: 'Latest tech job openings and discussions for Chennai techies.',
+        members: 5000,
+        image: 'https://images.unsplash.com/photo-1504384308090-c54be3855833?auto=format&fit=crop&w=200&q=80',
+        joined: true
+    },
+    {
+        id: 'g3',
+        name: 'Construction Workers Union',
+        description: 'Rights, safety, and job opportunities for construction workers.',
+        members: 3200,
+        image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=200&q=80'
+    }
+];
+
+const MOCK_NORMAL_POSTS: NormalPost[] = [
+    {
+        id: 201,
+        type: 'NORMAL',
+        title: "Just completed my plumbing certification!",
+        description: "Happy to announce that I am now a certified plumber. Looking forward to taking up new projects in Chennai.",
+        location: "Chennai, TN",
+        postedAt: "1h ago",
+        verified: true,
+        images: ["https://images.unsplash.com/photo-1581578731117-104f2a417954?auto=format&fit=crop&w=800&q=80"],
+        tags: ["certification", "plumbing"],
+        user: {
+            id: "u1", name: "Ravi Kumar", email: "ravi@ex.com", role: "worker",
+            avatar: "https://ui-avatars.com/api/?name=Ravi+Kumar&background=0D9488&color=fff"
+        },
+        group: MOCK_GROUPS[0]
+    },
+    {
+        id: 202,
+        type: 'NORMAL',
+        title: "Looking for part-time delivery jobs",
+        description: "I have a bike and valid license. Available for evening shifts in Kochi area.",
+        location: "Kochi, KL",
+        postedAt: "3h ago",
+        images: [],
+        tags: ["jobsearch", "delivery"],
+        user: {
+            id: "u2", name: "Arun V", email: "arun@ex.com", role: "seeker",
+            avatar: "https://ui-avatars.com/api/?name=Arun+V&background=random"
+        }
+    }
+];
 
 const MOCK_JOBS: JobPost[] = [
     {
@@ -13,7 +71,8 @@ const MOCK_JOBS: JobPost[] = [
         verified: true,
         postedAt: "2d ago",
         images: ["https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80"],
-        description: "Looking for an expert React developer..."
+        description: "Looking for an expert React developer...",
+        group: MOCK_GROUPS[1]
     },
     {
         id: 2,
@@ -75,7 +134,8 @@ const MOCK_JOBS: JobPost[] = [
         verified: true,
         postedAt: "Just now",
         images: ["https://plus.unsplash.com/premium_photo-1664303847960-586318f59035?auto=format&fit=crop&w=800&q=80"],
-        description: "Looking for daily wage workers for construction site. Food provided."
+        description: "Looking for daily wage workers for construction site. Food provided.",
+        group: MOCK_GROUPS[2]
     },
     {
         id: 7,
@@ -105,7 +165,8 @@ const MOCK_SERVICES: ServicePost[] = [
         user: {
             id: "s1", name: "Ramesh Kumar", email: "ramesh@ex.com", role: "worker",
             avatar: "https://ui-avatars.com/api/?name=Ramesh+Kumar&background=0D9488&color=fff"
-        }
+        },
+        group: MOCK_GROUPS[0]
     },
     {
         id: 102,
@@ -145,25 +206,48 @@ const MOCK_SERVICES: ServicePost[] = [
 
 interface PostsContextType {
     posts: Post[];
+    groups: Group[];
     addPost: (post: Post) => void;
-    getPostsByType: (type: 'JOB' | 'SERVICE') => Post[];
+    getPostsByType: (type: PostType | 'ALL') => Post[];
+    createGroup: (group: Omit<Group, 'id' | 'members'>) => void;
+    joinGroup: (groupId: string) => void;
 }
 
 const PostsContext = createContext<PostsContextType | undefined>(undefined);
 
 export function PostsProvider({ children }: { children: ReactNode }) {
-    const [posts, setPosts] = useState<Post[]>([...MOCK_JOBS, ...MOCK_SERVICES]);
+    const [posts, setPosts] = useState<Post[]>([...MOCK_NORMAL_POSTS, ...MOCK_JOBS, ...MOCK_SERVICES].sort(() => Math.random() - 0.5));
+    const [groups, setGroups] = useState<Group[]>(MOCK_GROUPS);
 
     const addPost = (newPost: Post) => {
         setPosts(prev => [newPost, ...prev]);
     };
 
-    const getPostsByType = (type: 'JOB' | 'SERVICE') => {
+    const getPostsByType = (type: PostType | 'ALL') => {
+        if (type === 'ALL') return posts;
         return posts.filter(p => p.type === type);
     };
 
+    const createGroup = (newGroupData: Omit<Group, 'id' | 'members'>) => {
+        const newGroup: Group = {
+            ...newGroupData,
+            id: `g${Date.now()}`,
+            members: 1,
+            joined: true
+        };
+        setGroups(prev => [...prev, newGroup]);
+    };
+
+    const joinGroup = (groupId: string) => {
+        setGroups(prev => prev.map(g =>
+            g.id === groupId
+                ? { ...g, joined: !g.joined, members: g.joined ? g.members - 1 : g.members + 1 }
+                : g
+        ));
+    };
+
     return (
-        <PostsContext.Provider value={{ posts, addPost, getPostsByType }}>
+        <PostsContext.Provider value={{ posts, groups, addPost, getPostsByType, createGroup, joinGroup }}>
             {children}
         </PostsContext.Provider>
     );

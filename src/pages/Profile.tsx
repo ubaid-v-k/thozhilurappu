@@ -3,7 +3,8 @@ import { useAuth } from "../context/AuthContext";
 import type { User } from "../types";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
-import { MapPin, Briefcase, Calendar, Edit2, LogOut, CheckCircle2, Camera, X, Save } from "lucide-react";
+import { MapPin, Briefcase, Calendar, Edit2, LogOut, CheckCircle2, Camera, X, Save, Users, Plus } from "lucide-react";
+import { usePosts } from "../context/PostsContext";
 
 export default function Profile() {
     const { user, logout, updateProfile } = useAuth();
@@ -34,6 +35,22 @@ export default function Profile() {
         // Mock image change
         const newAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || user.name)}&background=${Math.floor(Math.random() * 16777215).toString(16)}`;
         setFormData({ ...formData, avatar: newAvatar });
+    };
+
+    const { createGroup } = usePosts();
+    const [showCreateGroup, setShowCreateGroup] = useState(false);
+    const [newGroup, setNewGroup] = useState({ name: '', description: '', image: '' });
+
+    const handleCreateGroup = () => {
+        if (!newGroup.name || !newGroup.description) return;
+        createGroup({
+            name: newGroup.name,
+            description: newGroup.description,
+            image: newGroup.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(newGroup.name)}&background=random`
+        });
+        setShowCreateGroup(false);
+        setNewGroup({ name: '', description: '', image: '' });
+        alert("Group created successfully! You are now a member.");
     };
 
     return (
@@ -206,6 +223,57 @@ export default function Profile() {
                         <Button variant="link" className="text-primary-600 mt-2">Browse Jobs</Button>
                     </div>
                 </div>
+            </div>
+
+            {/* Create Group Modal/Section */}
+            {showCreateGroup && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-bold text-gray-900">Create a New Group</h2>
+                            <button onClick={() => setShowCreateGroup(false)} className="text-gray-400 hover:text-gray-600">
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Group Name</label>
+                                <Input
+                                    placeholder="e.g. Kerala Electricians"
+                                    value={newGroup.name}
+                                    onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 min-h-[100px]"
+                                    placeholder="What is this group about?"
+                                    value={newGroup.description}
+                                    onChange={(e) => setNewGroup({ ...newGroup, description: e.target.value })}
+                                />
+                            </div>
+                            <Button className="w-full bg-primary-600 hover:bg-primary-700" onClick={handleCreateGroup}>
+                                Create Group
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Floating Action Button for Create Group (or placed elsewhere) */}
+            <div className="fixed bottom-24 right-6 md:bottom-8 md:right-8 z-30">
+                <Button
+                    className="rounded-full shadow-lg h-14 w-14 bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center"
+                    onClick={() => setShowCreateGroup(true)}
+                    title="Create Group"
+                >
+                    <Users className="h-6 w-6" />
+                    <span className="sr-only">Create Group</span>
+                    <div className="absolute -top-1 -right-1 bg-white rounded-full p-0.5">
+                        <Plus className="h-4 w-4 text-indigo-600" />
+                    </div>
+                </Button>
             </div>
         </div>
     );

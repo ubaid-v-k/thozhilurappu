@@ -1,8 +1,10 @@
 
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
-import { Badge } from "../components/ui/Badge";
-import { Search, MapPin, Filter, X, Briefcase, Wrench, Clock, Image as ImageIcon } from "lucide-react";
+import { SearchBar } from "../components/ui/SearchBar";
+import { CreatePost } from "../components/feed/CreatePost";
+import { PostCard } from "../components/feed/PostCard";
+import { Briefcase, Wrench, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../utils/cn";
 import { useSearchParams } from "react-router-dom";
@@ -10,14 +12,46 @@ import type { JobPost, ServicePost, PostType } from "../types";
 import { usePosts } from "../context/PostsContext";
 
 export default function JobListing() {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const typeFilter = searchParams.get("type");
     const searchQuery = searchParams.get("search");
-    const [activeTab, setActiveTab] = useState<PostType>('JOB');
+    const [activeTab, setActiveTab] = useState<PostType | 'ALL'>('ALL');
     const [showFilters, setShowFilters] = useState(false);
 
-    const { getPostsByType } = usePosts();
-    const posts = getPostsByType(activeTab);
+    const { posts: allPostsRaw, getPostsByType } = usePosts();
+    // If 'ALL' (or 'NORMAL' treated as all), get all posts. Otherwise filter.
+    // Actually getPostsByType('NORMAL') currently returns only Normal posts. 
+    // We want the default view to show EVERYTHING.
+    // Let's modify logic to use 'allPostsRaw' if 'ALL'.
+    const displayedPosts = activeTab === 'ALL' ? allPostsRaw : getPostsByType(activeTab as PostType);
+
+    const posts = displayedPosts.filter(post => {
+        // Filter by text search
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            const matchesTitle = post.title.toLowerCase().includes(q);
+            const matchesLocation = post.location.toLowerCase().includes(q);
+            // Check specific fields if they exist
+            const matchesCompany = 'company' in post && (post as JobPost).company.toLowerCase().includes(q);
+            const matchesCategory = 'category' in post && (post as ServicePost).category.toLowerCase().includes(q);
+            const matchesUser = post.user?.name.toLowerCase().includes(q);
+            const matchesGroup = post.group?.name.toLowerCase().includes(q);
+
+            if (!matchesTitle && !matchesLocation && !matchesCompany && !matchesCategory && !matchesUser && !matchesGroup) {
+                return false;
+            }
+        }
+
+        // Filter by location search
+        const locationQuery = searchParams.get("location");
+        if (locationQuery) {
+            if (!post.location.toLowerCase().includes(locationQuery.toLowerCase())) {
+                return false;
+            }
+        }
+
+        return true;
+    });
 
     return (
         <div className="pb-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
@@ -92,99 +126,71 @@ export default function JobListing() {
                 </div>
 
                 {/* Main Feed */}
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 max-w-2xl mx-auto w-full">
                     {/* Search Bar */}
-                    <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm mb-6 flex flex-col md:flex-row gap-3 sticky top-20 z-30">
-                        <div className="flex-1 relative">
-                            <Search className="absolute left-3.5 top-3 h-5 w-5 text-gray-400" />
-                            <Input
-                                className="pl-11 border-0 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-100 transition-all h-11"
-                                placeholder={activeTab === 'JOB' ? "Search by title, skill, or company..." : "Search services like 'plumber', 'driver'..."}
-                                defaultValue={searchQuery || ""}
-                            />
-                        </div>
-                        <div className="w-full md:w-1/3 relative">
-                            <MapPin className="absolute left-3.5 top-3 h-5 w-5 text-gray-400" />
-                            <Input className="pl-11 border-0 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-100 transition-all h-11" placeholder="Location" />
-                        </div>
-                        <div className="flex gap-2">
-                            <Button variant="outline" size="icon" className="lg:hidden h-11 w-11" onClick={() => setShowFilters(true)}>
-                                <Filter className="h-5 w-5" />
-                            </Button>
-                            <Button className="h-11 px-6 shadow-md shadow-primary-200">Search</Button>
-                        </div>
+                    <div className="sticky top-0 md:top-20 z-30 mb-6 bg-gray-50/80 backdrop-blur-md pb-2 pt-1 -mx-4 px-4 md:mx-0 md:px-0 md:bg-transparent md:backdrop-blur-none">
+                        <SearchBar
+                            className="shadow-sm border-gray-200"
+                            placeholder="Search jobs, services, or people..."
+                            initialQuery={searchQuery || ""}
+                            showLocation={false}
+                            onSearch={(query, location) => {
+                                setSearchParams(prev => {
+                                    const newParams = new URLSearchParams(prev);
+                                    if (query) newParams.set('search', query); else newParams.delete('search');
+                                    if (location) newParams.set('location', location); else newParams.delete('location');
+                                    return newParams;
+                                });
+                            }}
+                            onFilterClick={() => setShowFilters(true)}
+                        />
+                    </div>
+
+                    {/* Quick Post Composer (Hidden on mobile, maybe? Or keep it) */}
+                    <div className="mb-8">
+                        <CreatePost onSubmit={async (data) => {
+                            // Mock submit
+                            console.log("New Post:", data);
+                            // In real app, call API
+                            alert("Post created!");
+                        }} />
+                    </div>
+
+                    {/* Feed Tabs */}
+                    <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+                        <button
+                            onClick={() => setActiveTab('ALL')}
+                            className={cn(
+                                "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors border",
+                                activeTab === 'ALL' ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                            )}
+                        >
+                            All Posts
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('JOB')}
+                            className={cn(
+                                "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors border",
+                                activeTab === 'JOB' ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                            )}
+                        >
+                            Jobs
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('SERVICE')}
+                            className={cn(
+                                "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors border",
+                                activeTab === 'SERVICE' ? "bg-teal-600 text-white border-teal-600" : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                            )}
+                        >
+                            Services
+                        </button>
                     </div>
 
                     {/* Results Grid */}
-                    <div className="grid gap-5">
+                    <div className="space-y-6">
                         {posts.map((post) => (
-                            <div key={post.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 group">
-                                <div className="flex gap-5 items-start">
-                                    {/* Thumbnail or Icon */}
-                                    <div className="flex-shrink-0">
-                                        {post.images && post.images.length > 0 ? (
-                                            <div className="w-24 h-24 md:w-32 md:h-32 rounded-lg overflow-hidden relative bg-gray-100 border border-gray-100">
-                                                <img src={post.images[0]} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                            </div>
-                                        ) : (
-                                            <div className={cn(
-                                                "w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold shadow-inner",
-                                                activeTab === 'JOB' ? "bg-blue-50 text-blue-600" : "bg-teal-50 text-teal-600"
-                                            )}>
-                                                {post.title.charAt(0)}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <h3 className="text-lg font-bold text-gray-900 leading-tight group-hover:text-primary-600 transition-colors mb-1">
-                                                    {post.title}
-                                                </h3>
-                                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-500 mb-2">
-                                                    {activeTab === 'JOB' ? (
-                                                        <span className="font-medium text-gray-700">{(post as JobPost).company}</span>
-                                                    ) : (
-                                                        <span className="font-medium text-teal-700">{(post as ServicePost).category}</span>
-                                                    )}
-                                                    <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {post.location}</span>
-                                                </div>
-                                            </div>
-                                            {post.verified && (
-                                                <Badge variant="verified" className="flex-shrink-0">Verified</Badge>
-                                            )}
-                                        </div>
-
-                                        <div className="flex items-center gap-3 mt-1">
-                                            <Badge variant={activeTab === 'JOB' ? 'secondary' : 'default'} className={activeTab === 'SERVICE' ? "bg-teal-100 text-teal-800 hover:bg-teal-200" : ""}>
-                                                {activeTab === 'JOB' ? (post as JobPost).jobType : (post as ServicePost).rate}
-                                            </Badge>
-                                            {activeTab === 'JOB' && (
-                                                <Badge variant="outline">{(post as JobPost).salary}</Badge>
-                                            )}
-                                        </div>
-
-                                        {post.description && (
-                                            <p className="text-sm text-gray-600 mt-3 line-clamp-2 leading-relaxed">
-                                                {post.description}
-                                            </p>
-                                        )}
-
-                                        <div className="mt-4 pt-4 border-t border-gray-50 flex justify-between items-center text-xs text-gray-400 font-medium">
-                                            <div className="flex items-center gap-4">
-                                                <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> Posted {post.postedAt}</span>
-                                                {post.images && post.images.length > 0 && (
-                                                    <span className="flex items-center gap-1 text-gray-500"><ImageIcon className="h-3.5 w-3.5" /> {post.images.length} Image(s)</span>
-                                                )}
-                                            </div>
-                                            <Button size="sm" variant={activeTab === 'JOB' ? 'default' : 'secondary'} className={activeTab === 'SERVICE' ? "bg-teal-600 hover:bg-teal-700 text-white" : ""}>
-                                                {activeTab === 'JOB' ? 'Apply Now' : 'Book Service'}
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <PostCard key={post.id} post={post} />
                         ))}
                     </div>
                 </div>
