@@ -211,6 +211,7 @@ interface PostsContextType {
     getPostsByType: (type: PostType | 'ALL') => Post[];
     createGroup: (group: Omit<Group, 'id' | 'members'>) => void;
     joinGroup: (groupId: string) => void;
+    getPostById: (id: string) => Post | undefined;
 }
 
 const PostsContext = createContext<PostsContextType | undefined>(undefined);
@@ -246,8 +247,12 @@ export function PostsProvider({ children }: { children: ReactNode }) {
         ));
     };
 
+    const getPostById = (id: string) => {
+        return posts.find(p => p.id.toString() === id);
+    };
+
     return (
-        <PostsContext.Provider value={{ posts, groups, addPost, getPostsByType, createGroup, joinGroup }}>
+        <PostsContext.Provider value={{ posts, groups, addPost, getPostsByType, createGroup, joinGroup, getPostById }}>
             {children}
         </PostsContext.Provider>
     );

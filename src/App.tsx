@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import JobListing from './pages/JobListing';
 import JobDetails from './pages/JobDetails';
+import PostDetails from './pages/PostDetails';
 import JobCategoryPage from './pages/JobCategoryPage';
 import PostJob from './pages/PostJob';
 import Inbox from './pages/Inbox';
@@ -29,6 +30,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/jobs" element={<JobListing />} />
             <Route path="/jobs/:type" element={<JobCategoryPage />} />
+            <Route path="/post/:id" element={<PostDetails />} />
             <Route path="/jobs/id/:id" element={<JobDetails />} />
             <Route path="/inbox" element={<Inbox />} />
             <Route path="/messages" element={<Inbox />} />

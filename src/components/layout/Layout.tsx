@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import Sidebar from './sidebar/Sidebar';
 import BottomNav from './bottom-nav/BottomNav';
 import JobFilters from '../feed/JobFilters';
+import Topbar from './Topbar';
 
 export default function Layout({ children }: { children: ReactNode }) {
     return (
@@ -9,8 +10,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             <Sidebar />
 
             <div className="flex-1 flex flex-col min-w-0">
-                {/* Topbar removed as it's cleaner without it in social style, specific pages can handle their headers or use a simplified unified one if needed. 
-                    For now, Home handles its own mobile header. */}
+                <Topbar />
 
                 <main className="flex-1 w-full max-w-7xl mx-auto flex gap-6 pt-4 px-0 md:px-4 lg:px-6">
                     {/* Main Feed/Content Area */}

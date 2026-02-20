@@ -23,8 +23,8 @@ export default function Topbar() {
 
                     {/* Mobile Menu Trigger & Logo Area (Visible on Mobile) */}
                     <div className="flex items-center gap-2 md:hidden">
-                        <Link to="/">
-                            <img src={logo} alt="Thozhilurappu" className="h-14 w-auto object-contain transition-transform duration-300 hover:scale-105" />
+                        <Link to="/" className="block">
+                            <img src={logo} alt="Thozhilurappu" className="h-10 w-auto object-contain" />
                         </Link>
                     </div>
 

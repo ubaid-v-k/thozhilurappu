@@ -6,6 +6,7 @@ import { Button } from '../ui/Button';
 import { cn } from '../../utils/cn';
 import { useOnClickOutside } from '../../hooks/useOnClickOutside';
 import { ShareDialog } from './ShareDialog';
+import CommentsSection from './CommentsSection';
 
 interface PostCardProps {
     post: Post;
@@ -22,6 +23,7 @@ export function PostCard({ post }: PostCardProps) {
     const [likesCount, setLikesCount] = useState(Math.floor(Math.random() * 50) + 5);
     const [showMenu, setShowMenu] = useState(false);
     const [showShareDialog, setShowShareDialog] = useState(false);
+    const [showComments, setShowComments] = useState(false);
 
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -333,7 +335,24 @@ export function PostCard({ post }: PostCardProps) {
                         <span className="text-sm font-medium">Dislike</span>
                     </Button>
 
-                    <Button variant="ghost" size="sm" className="flex-1 gap-2 text-gray-600 hover:bg-gray-50">
+                    {/* Comment Button - Desktop (Toggle) */}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className={cn("hidden md:flex flex-1 gap-2 hover:bg-gray-50", showComments ? "text-blue-600 bg-blue-50" : "text-gray-600")}
+                        onClick={() => setShowComments(!showComments)}
+                    >
+                        <MessageCircle className={cn("h-5 w-5", showComments && "fill-current")} />
+                        <span className="text-sm font-medium">Comment</span>
+                    </Button>
+
+                    {/* Comment Button - Mobile (Navigate) */}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex md:hidden flex-1 gap-2 text-gray-600 hover:bg-gray-50"
+                        onClick={() => window.location.href = `/post/${post.id}`}
+                    >
                         <MessageCircle className="h-5 w-5" />
                         <span className="text-sm font-medium">Comment</span>
                     </Button>
@@ -367,6 +386,13 @@ export function PostCard({ post }: PostCardProps) {
             )}
 
             <ShareDialog isOpen={showShareDialog} onClose={() => setShowShareDialog(false)} post={post} />
+
+            {/* Comments Section */}
+            {showComments && (
+                <div className="animate-in slide-in-from-top-2 duration-200">
+                    <CommentsSection postId={post.id.toString()} />
+                </div>
+            )}
         </div>
     );
 }

@@ -5,34 +5,12 @@ import { Button } from "../components/ui/Button";
 import { SlidersHorizontal } from "lucide-react";
 import JobFilters from "../components/feed/JobFilters";
 import { AnimatePresence, motion } from "framer-motion";
-import { SearchBar } from "../components/ui/SearchBar";
-import { useNavigate } from "react-router-dom";
 
 export default function Home() {
     const [showMobileFilters, setShowMobileFilters] = useState(false);
-    const navigate = useNavigate();
 
     return (
         <div className="relative max-w-[600px] mx-auto pb-20">
-            {/* Header & Search */}
-            <div className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 py-3 mb-4">
-                <div className="flex justify-between items-center mb-3 md:hidden">
-                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-800">Thozhilurappu</h1>
-                    <Button variant="ghost" size="icon" onClick={() => setShowMobileFilters(true)} className="-mr-2">
-                        <SlidersHorizontal className="h-6 w-6 text-gray-600" />
-                    </Button>
-                </div>
-
-                <SearchBar
-                    placeholder="Search for jobs, services, or people..."
-                    showLocation={false}
-                    className="shadow-sm border-gray-200"
-                    onSearch={(query) => {
-                        navigate(`/jobs?search=${encodeURIComponent(query)}`);
-                    }}
-                />
-            </div>
-
             {/* Mobile Filters Drawer */}
             <AnimatePresence>
                 {showMobileFilters && (
@@ -58,6 +36,18 @@ export default function Home() {
                     </>
                 )}
             </AnimatePresence>
+
+            {/* Floating Mobile Filter Button */}
+            <div className="fixed bottom-20 right-4 z-40 md:hidden">
+                <Button
+                    variant="default"
+                    size="icon"
+                    className="rounded-full h-12 w-12 shadow-lg bg-primary-600"
+                    onClick={() => setShowMobileFilters(true)}
+                >
+                    <SlidersHorizontal className="h-6 w-6 text-white" />
+                </Button>
+            </div>
 
             {/* Urgent Openings */}
             <UrgentJobsRail />
