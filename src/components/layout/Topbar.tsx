@@ -3,6 +3,7 @@ import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import logo from "../../assets/logo.png";
 
 export default function Topbar() {
     const navigate = useNavigate();
@@ -22,7 +23,9 @@ export default function Topbar() {
 
                     {/* Mobile Menu Trigger & Logo Area (Visible on Mobile) */}
                     <div className="flex items-center gap-2 md:hidden">
-                        <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-800">Thozhilurappu</span>
+                        <Link to="/">
+                            <img src={logo} alt="Thozhilurappu" className="h-14 w-auto object-contain transition-transform duration-300 hover:scale-105" />
+                        </Link>
                     </div>
 
                     {/* Search Bar - Central */}

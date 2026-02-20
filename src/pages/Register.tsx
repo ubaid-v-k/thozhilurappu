@@ -2,7 +2,8 @@ import { Button } from "../components/ui/Button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
-import { User, Mail, Lock, Sparkles, MapPin, Briefcase, ArrowRight } from "lucide-react";
+import { User, Mail, Lock, MapPin, Briefcase, ArrowRight } from "lucide-react";
+import logo from "../assets/logo.png";
 
 export default function Register() {
     const { register } = useAuth();
@@ -48,8 +49,8 @@ export default function Register() {
 
             <div className="max-w-xl w-full bg-white rounded-2xl shadow-xl overflow-hidden relative z-10 transition-all hover:shadow-2xl my-8">
                 <div className="bg-white p-8 pb-0 text-center relative">
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary-50 text-primary-600 mb-4 ring-4 ring-white shadow-md">
-                        <Sparkles className="h-7 w-7" />
+                    <div className="inline-flex items-center justify-center w-auto h-14 rounded-2xl bg-primary-50 text-primary-600 mb-4 ring-4 ring-white shadow-md p-2">
+                        <img src={logo} alt="Thozhilurappu logo" className="h-full w-auto object-contain" />
                     </div>
                     <h2 className="text-3xl font-bold tracking-tight text-gray-900">Create Account</h2>
                     <p className="text-gray-500 mt-2 text-sm">Join Thozhilurappu today.</p>

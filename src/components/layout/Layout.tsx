@@ -14,7 +14,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
                 <main className="flex-1 w-full max-w-7xl mx-auto flex gap-6 pt-4 px-0 md:px-4 lg:px-6">
                     {/* Main Feed/Content Area */}
-                    <div className="w-full max-w-2xl mx-auto pb-20 md:pb-8">
+                    <div className="flex-1 min-w-0 pb-20 md:pb-8">
                         {children}
                     </div>
 

@@ -129,7 +129,7 @@ export function CreatePost({ onSubmit, loading = false }: CreatePostProps) {
                             selectedTemplate === 'SERVICE' ? "Describe the services you offer, your experience, and pricing..." :
                                 "What's happening? Share a job update or achievement..."
                     }
-                    className="w-full min-h-[120px] resize-none border-none focus:ring-0 text-gray-800 placeholder:text-gray-400 text-base p-0 bg-transparent"
+                    className="w-full min-h-[200px] resize-none border-none focus:ring-0 text-gray-800 placeholder:text-gray-400 text-base p-0 bg-transparent"
                 />
 
                 {/* Dynamic Fields for Job/Service */}
@@ -165,12 +165,26 @@ export function CreatePost({ onSubmit, loading = false }: CreatePostProps) {
                                     onChange={(e) => handleFieldChange('salary', e.target.value)}
                                     className="bg-gray-50 border-gray-200"
                                 />
-                                <Input
-                                    placeholder="Job Type (e.g. Full-time)"
-                                    value={extraFields.jobType || ''}
-                                    onChange={(e) => handleFieldChange('jobType', e.target.value)}
-                                    className="bg-gray-50 border-gray-200"
-                                />
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Job Type</label>
+                                    <div className="flex gap-2">
+                                        {['Urgent', 'Part-Time', 'Full-Time'].map((type) => (
+                                            <button
+                                                key={type}
+                                                type="button"
+                                                onClick={() => handleFieldChange('jobType', type)}
+                                                className={cn(
+                                                    "px-4 py-2 rounded-full text-sm font-medium transition-colors border",
+                                                    extraFields.jobType === type
+                                                        ? "bg-primary-600 text-white border-primary-600"
+                                                        : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                                                )}
+                                            >
+                                                {type}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </>
                         ) : (
                             <>

@@ -15,6 +15,7 @@ import {
 import { cn } from "../../../utils/cn";
 import { Button } from "../../ui/Button";
 import { useAuth } from "../../../context/AuthContext";
+import logo from "../../../assets/logo.png";
 
 const NAV_ITEMS = [
     { icon: Home, label: "Home", path: "/" },
@@ -55,13 +56,10 @@ export default function Sidebar() {
     return (
         <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 bg-white border-r border-gray-100 p-4 shadow-soft-xl z-40">
             {/* Logo */}
+            {/* Logo */}
+            {/* Logo */}
             <Link to="/" className="flex items-center gap-2 mb-8 px-2 group">
-                <div className="bg-primary-600 p-2 rounded-lg text-white group-hover:bg-primary-700 transition-colors">
-                    <Briefcase className="h-6 w-6" />
-                </div>
-                <span className="text-xl font-bold text-gray-900 tracking-tight">
-                    Thozhilurappu
-                </span>
+                <img src={logo} alt="Thozhilurappu" className="h-32 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
             </Link>
 
             {/* Navigation */}

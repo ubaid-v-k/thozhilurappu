@@ -126,7 +126,7 @@ export default function JobListing() {
                 </div>
 
                 {/* Main Feed */}
-                <div className="flex-1 min-w-0 max-w-2xl mx-auto w-full">
+                <div className="flex-1 min-w-0 w-full">
                     {/* Search Bar */}
                     <div className="sticky top-0 md:top-20 z-30 mb-6 bg-gray-50/80 backdrop-blur-md pb-2 pt-1 -mx-4 px-4 md:mx-0 md:px-0 md:bg-transparent md:backdrop-blur-none">
                         <SearchBar

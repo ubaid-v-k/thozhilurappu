@@ -2,7 +2,8 @@ import { Button } from "../components/ui/Button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
-import { Lock, Mail, ArrowRight, Briefcase } from "lucide-react";
+import { Lock, Mail, ArrowRight } from "lucide-react";
+import logo from "../assets/logo.png";
 
 export default function Login() {
     const { login } = useAuth();
@@ -39,8 +40,8 @@ export default function Login() {
                 <div className="bg-primary-600 p-8 text-center pattern-grid-lg text-white relative">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary-600 to-primary-800 opacity-90"></div>
                     <div className="relative z-10">
-                        <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm shadow-inner">
-                            <Briefcase className="h-8 w-8 text-white" />
+                        <div className="bg-white/20 w-auto h-32 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm shadow-inner p-4">
+                            <img src={logo} alt="Thozhilurappu logo" className="h-full w-auto object-contain" />
                         </div>
                         <h2 className="text-3xl font-bold tracking-tight">Welcome Back</h2>
                         <p className="text-primary-100 mt-2 text-sm font-medium">Log in to your specialized job portal</p>
