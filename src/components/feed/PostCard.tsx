@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MoreHorizontal, MessageCircle, ThumbsUp, ThumbsDown, Share2, MapPin, CheckCircle2, Building2, Wrench, Check, X, Clock, Flag, UserX, Bookmark, Bell, Info, Code, PlusCircle, MinusCircle } from 'lucide-react';
 import type { Post, JobPost, ServicePost } from '../../types';
 import { Badge } from '../ui/Badge';
@@ -13,12 +14,14 @@ interface PostCardProps {
 }
 
 export function PostCard({ post }: PostCardProps) {
+    const navigate = useNavigate();
     const isJob = post.type === 'JOB';
     const isService = post.type === 'SERVICE';
     const isNormal = post.type === 'NORMAL';
 
     // Local state for interactions (Mock)
     const [liked, setLiked] = useState(false);
+    const [disliked, setDisliked] = useState(false);
     const [followed, setFollowed] = useState(false);
     const [likesCount, setLikesCount] = useState(Math.floor(Math.random() * 50) + 5);
     const [showMenu, setShowMenu] = useState(false);
@@ -30,8 +33,19 @@ export function PostCard({ post }: PostCardProps) {
     useOnClickOutside(menuRef, () => setShowMenu(false));
 
     const handleLike = () => {
+        if (disliked) {
+            setDisliked(false);
+        }
         setLiked(!liked);
         setLikesCount(prev => liked ? prev - 1 : prev + 1);
+    };
+
+    const handleDislike = () => {
+        if (liked) {
+            setLiked(false);
+            setLikesCount(prev => prev - 1);
+        }
+        setDisliked(!disliked);
     };
 
     const toggleConnect = () => {
@@ -310,28 +324,10 @@ export function PostCard({ post }: PostCardProps) {
                     <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => {
-                            if (liked) {
-                                setLiked(false);
-                                setLikesCount(prev => prev - 1);
-                            }
-                            // Toggle dislike state (if we tracked it) - for now just UI
-                            // Let's add local state for disliked if we want it to be toggleable
-                            // But request just said "add post unlike option".
-                            // Usually "Unlike" means removing the like. 
-                            // But user also said "add post unlike option" in the context of "like and unlike option" 
-                            // AND "add post unlike option" at the end. 
-                            // If they mean "Dislike" button:
-                        }}
-                        className="flex-1 gap-2 text-gray-600 hover:bg-gray-50"
+                        onClick={handleDislike}
+                        className={cn("flex-1 gap-2 hover:bg-gray-50", disliked ? "text-red-600 font-medium" : "text-gray-600")}
                     >
-                        {/* Re-reading request: "add post unlike option" 
-                             This could mean "Dislike" button. 
-                             Or it could mean just the ability to unlike. 
-                             Given "like and unlike option" for comments, and "post unlike option", 
-                             I'll add a Dislike button (ThumbsDown) as planned. 
-                         */}
-                        <ThumbsDown className="h-5 w-5" />
+                        <ThumbsDown className={cn("h-5 w-5", disliked && "fill-current")} />
                         <span className="text-sm font-medium">Dislike</span>
                     </Button>
 
@@ -351,7 +347,7 @@ export function PostCard({ post }: PostCardProps) {
                         variant="ghost"
                         size="sm"
                         className="flex md:hidden flex-1 gap-2 text-gray-600 hover:bg-gray-50"
-                        onClick={() => window.location.href = `/post/${post.id}`}
+                        onClick={() => navigate(`/post/${post.id}`)}
                     >
                         <MessageCircle className="h-5 w-5" />
                         <span className="text-sm font-medium">Comment</span>

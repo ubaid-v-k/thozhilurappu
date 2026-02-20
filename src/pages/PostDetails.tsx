@@ -34,13 +34,12 @@ export default function PostDetails() {
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back to Feed
             </Button>
 
-            <div className="space-y-6">
+            <div className="space-y-6 pb-20"> {/* Added padding bottom for sticky input */}
                 <PostCard post={post} />
 
                 {/* Always show comments on details page */}
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 px-2">Comments</h3>
-                    <CommentsSection postId={post.id.toString()} />
+                    <CommentsSection postId={post.id.toString()} isPage={true} />
                 </div>
             </div>
         </div>

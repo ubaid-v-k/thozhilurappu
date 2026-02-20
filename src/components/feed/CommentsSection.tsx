@@ -37,31 +37,31 @@ function CommentItem({ comment, onLike, onPin, onHide, onReport }: CommentItemPr
     if (comment.isHidden) return null;
 
     return (
-        <div className={cn("flex gap-3 relative group", comment.isPinned && "bg-blue-50/50 p-2 rounded-lg -mx-2")}>
-            <div className="h-8 w-8 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+        <div className={cn("flex gap-2 relative group items-start", comment.isPinned && "bg-blue-50/30 p-2 rounded-lg -mx-2")}>
+            <div className="h-8 w-8 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 mt-0.5">
                 <img src={comment.user.avatar} alt={comment.user.name} className="h-full w-full object-cover" />
             </div>
-            <div className="flex-1">
-                <div className="bg-white p-3 rounded-lg rounded-tl-none shadow-sm relative">
-                    <div className="flex justify-between items-baseline mb-1">
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold text-gray-900">{comment.user.name}</span>
-                            {comment.isPinned && <Pin className="h-3 w-3 text-blue-500 fill-current rotate-45" />}
-                        </div>
-                        <span className="text-xs text-gray-400">{new Date(comment.date).toLocaleDateString()}</span>
+
+            <div className="flex-1 max-w-[85%]">
+                {/* Bubble */}
+                <div className="bg-gray-100 px-3 py-2 rounded-2xl rounded-tl-none inline-block">
+                    <div className="flex items-center gap-1 mb-0.5">
+                        <span className="text-xs font-bold text-gray-900">{comment.user.name}</span>
+                        {comment.isPinned && <Pin className="h-3 w-3 text-blue-500 fill-current rotate-45" />}
                     </div>
-                    <p className="text-sm text-gray-700">{comment.text}</p>
+                    <p className="text-sm text-gray-800 leading-snug">{comment.text}</p>
                 </div>
 
-                {/* Actions */}
+                {/* Thread Actions */}
                 <div className="flex items-center gap-4 mt-1 ml-1">
+                    <span className="text-xs text-gray-500">{new Date(comment.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
                     <button
                         onClick={() => onLike(comment._id)}
-                        className={cn("text-xs font-semibold flex items-center gap-1 hover:text-blue-600 transition-colors", comment.isLiked ? "text-blue-600" : "text-gray-500")}
+                        className={cn("text-xs font-bold hover:underline transition-colors", comment.isLiked ? "text-blue-600" : "text-gray-500")}
                     >
                         Like {comment.likes > 0 && <span>({comment.likes})</span>}
                     </button>
-                    <button className="text-xs font-semibold text-gray-500 hover:text-gray-700">Reply</button>
+                    <button className="text-xs font-bold text-gray-500 hover:scale-105 transition-transform hover:underline">Reply</button>
                 </div>
             </div>
 
@@ -70,7 +70,7 @@ function CommentItem({ comment, onLike, onPin, onHide, onReport }: CommentItemPr
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 text-gray-400 hover:text-gray-600"
+                    className="h-6 w-6 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
                     onClick={() => setShowMenu(!showMenu)}
                 >
                     <MoreHorizontal className="h-4 w-4" />
@@ -103,7 +103,7 @@ function CommentItem({ comment, onLike, onPin, onHide, onReport }: CommentItemPr
     );
 }
 
-export default function CommentsSection({ postId }: { postId: string }) {
+export default function CommentsSection({ postId, isPage = false }: { postId: string, isPage?: boolean }) {
     const { user, requireAuth } = useAuth();
     // Mock data initialization for demo purposes since backend doesn't support these fields yet
     const [comments, setComments] = useState<Comment[]>([]);
@@ -195,9 +195,9 @@ export default function CommentsSection({ postId }: { postId: string }) {
     };
 
     return (
-        <div className="bg-gray-50/50 border-t border-gray-100 p-4 space-y-4">
+        <div className={cn("bg-transparent space-y-4", !isPage ? "p-4 border-t border-gray-100" : "")}>
             {/* Comment List */}
-            <div className="space-y-4 max-h-80 overflow-y-auto pr-2 scrollbar-thin">
+            <div className={cn("space-y-4 pr-2 scrollbar-thin", isPage ? "max-h-none" : "max-h-80 overflow-y-auto")}>
                 {comments.length === 0 ? (
                     <p className="text-xs text-gray-500 text-center py-2">No comments yet. Be the first!</p>
                 ) : (
@@ -215,28 +215,57 @@ export default function CommentsSection({ postId }: { postId: string }) {
             </div>
 
             {/* Input Area */}
-            <div className="flex gap-2">
-                <div className="h-8 w-8 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 hidden md:block">
-                    <img src={user?.avatar || "https://ui-avatars.com/api/?background=random"} className="h-full w-full object-cover" />
+            {isPage ? (
+                // Sticky Footer Input for Mobile Page
+                <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-2 md:relative md:border-none md:p-0 z-50">
+                    <div className="flex gap-2 items-center max-w-2xl mx-auto">
+                        <div className="h-8 w-8 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 hidden md:block">
+                            <img src={user?.avatar || "https://ui-avatars.com/api/?background=random"} className="h-full w-full object-cover" />
+                        </div>
+                        <div className="flex-1 relative bg-gray-100 rounded-full flex items-center px-2">
+                            <Input
+                                placeholder="Write a comment..."
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                                onFocus={() => requireAuth(() => { })}
+                                className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-2 h-10 w-full"
+                            />
+                            <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-primary-600 hover:bg-gray-200 rounded-full"
+                                onClick={handlePostComment}
+                            >
+                                <Send className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex-1 relative">
-                    <Input
-                        placeholder="Write a comment..."
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        onFocus={() => requireAuth(() => { })}
-                        className="pr-10"
-                    />
-                    <Button
-                        size="icon"
-                        variant="ghost"
-                        className="absolute right-1 top-1 h-8 w-8 text-primary-600"
-                        onClick={handlePostComment}
-                    >
-                        <Send className="h-4 w-4" />
-                    </Button>
+            ) : (
+                // Inline Input
+                <div className="flex gap-2">
+                    <div className="h-8 w-8 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 hidden md:block">
+                        <img src={user?.avatar || "https://ui-avatars.com/api/?background=random"} className="h-full w-full object-cover" />
+                    </div>
+                    <div className="flex-1 relative">
+                        <Input
+                            placeholder="Write a comment..."
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            onFocus={() => requireAuth(() => { })}
+                            className="rounded-full bg-gray-100 border-none px-4"
+                        />
+                        <Button
+                            size="icon"
+                            variant="ghost"
+                            className="absolute right-1 top-1 h-8 w-8 text-primary-600 rounded-full hover:bg-gray-200"
+                            onClick={handlePostComment}
+                        >
+                            <Send className="h-4 w-4" />
+                        </Button>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }
